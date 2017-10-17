@@ -19,7 +19,7 @@ namespace Geta.GoogleProductFeed.Controllers
             _feedHelper = feedHelper;
         }
 
-        [Route("googleproductfeed")]
+        [Route("{culture}/googleproductfeed")]
         public IHttpActionResult Get(string culture)
         {
             if (string.IsNullOrWhiteSpace(culture)) throw new ArgumentNullException(culture);
