@@ -1,4 +1,6 @@
-﻿using System.IO;
+﻿using System;
+using System.Globalization;
+using System.IO;
 using System.Net;
 using System.Web.Http;
 using System.Xml.Serialization;
@@ -18,9 +20,13 @@ namespace Geta.GoogleProductFeed.Controllers
         }
 
         [Route("googleproductfeed")]
-        public IHttpActionResult Get()
+        public IHttpActionResult Get(string culture)
         {
-            var feed = _feedHelper.GetLatestFeed();
+            if (string.IsNullOrWhiteSpace(culture)) throw new ArgumentNullException(culture);
+
+            var cultureTyped = CultureInfo.CreateSpecificCulture(culture);
+
+            var feed = _feedHelper.GetLatestFeed(cultureTyped);
 
             if (feed == null)
                 return Content(HttpStatusCode.NotFound, "No feed generated", new NamespacedXmlMediaTypeFormatter());

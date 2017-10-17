@@ -1,13 +1,14 @@
-﻿using EPiServer.Data;
+﻿using System.Globalization;
+using EPiServer.Data;
 using Geta.GoogleProductFeed.Models;
 
 namespace Geta.GoogleProductFeed.Repositories
 {
     public interface IFeedRepository
     {
-        void RemoveOldVersion();
+        void RemoveOldVersion(CultureInfo culture);
         
-        FeedData GetLatestFeedData();
+        FeedData GetLatestFeedData(CultureInfo culture);
 
         void Save(FeedData feedData);
     }

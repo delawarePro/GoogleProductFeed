@@ -1,4 +1,5 @@
-﻿using System.Linq;
+﻿using System.Globalization;
+using System.Linq;
 using EPiServer.Data;
 using EPiServer.Data.Dynamic;
 using EPiServer.ServiceLocation;
@@ -9,9 +10,13 @@ namespace Geta.GoogleProductFeed.Repositories
     [ServiceConfiguration(typeof(IFeedRepository))]
     public class FeedRepository : IFeedRepository
     {
-        public void RemoveOldVersion()
+        public void RemoveOldVersion(CultureInfo culture)
         {
-            var items = FeedStore.Items<FeedData>().OrderByDescending(f => f.Created).ToList();
+            var items = FeedStore.Items<FeedData>()
+                            .Where(f => f.Culture == culture)
+                            .OrderByDescending(f => f.Created)
+                            .ToList();
+
             if (items.Count > 1)
             {
                 for (int i = items.Count - 1; i >= 1; i--)
@@ -21,9 +26,12 @@ namespace Geta.GoogleProductFeed.Repositories
             }
         }
 
-        public FeedData GetLatestFeedData()
+        public FeedData GetLatestFeedData(CultureInfo culture)
         {
-            return FeedStore.Items<FeedData>().OrderByDescending(f => f.Created).FirstOrDefault();
+            return FeedStore.Items<FeedData>()
+                        .Where(f => f.Culture == culture)
+                        .OrderByDescending(f => f.Created)
+                        .FirstOrDefault();
         }
 
         public void Save(FeedData feedData)

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Globalization;
 using EPiServer.Data;
 using EPiServer.Data.Dynamic;
 
@@ -9,6 +10,7 @@ namespace Geta.GoogleProductFeed.Models
     {
         public DateTime Created { get; set; }
         public byte[] FeedBytes { get; set; }
+        public CultureInfo Culture { get; set; }
 
         [EPiServerDataIndex]
         public Identity Id { get; set; }

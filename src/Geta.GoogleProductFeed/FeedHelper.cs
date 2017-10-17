@@ -1,4 +1,5 @@
-﻿using System.IO;
+﻿using System.Globalization;
+using System.IO;
 using System.Xml.Serialization;
 using EPiServer.ServiceLocation;
 using Geta.GoogleProductFeed.Models;
@@ -21,35 +22,39 @@ namespace Geta.GoogleProductFeed
 
         public bool GenerateAndSaveData()
         {
-            var feed = _feedBuilder.Build();
+            var feeds = _feedBuilder.Build();
 
-            if (feed == null)
+            if (feeds == null)
                 return false;
 
-            var feedData = new FeedData
+            foreach (var feed in feeds)
             {
-                Created = feed.Updated
-            };
+                var feedData = new FeedData
+                {
+                    Created = feed.Value.Updated,
+                    Culture = feed.Key
+                };
 
-            using (var ms = new MemoryStream())
-            {
-                var serializer = new XmlSerializer(typeof(Feed), Ns);
-                serializer.Serialize(ms, feed);
-                feedData.FeedBytes = ms.ToArray();
+                using (var ms = new MemoryStream())
+                {
+                    var serializer = new XmlSerializer(typeof(Feed), Ns);
+                    serializer.Serialize(ms, feed.Value);
+                    feedData.FeedBytes = ms.ToArray();
+                }
+
+                _feedRepository.Save(feedData);
+
+                // we only need to keep one version - remove older ones to avoid filling up the database
+                _feedRepository.RemoveOldVersion(feed.Key);
             }
-
-            _feedRepository.Save(feedData);
-
-            // we only need to keep one version - remove older ones to avoid filling up the database
-            _feedRepository.RemoveOldVersion();
 
             return true;
 
         }
 
-        public Feed GetLatestFeed()
+        public Feed GetLatestFeed(CultureInfo culture)
         {
-            var feedData = _feedRepository.GetLatestFeedData();
+            var feedData = _feedRepository.GetLatestFeedData(culture);
 
             if (feedData == null)
                 return null;
